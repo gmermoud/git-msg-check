@@ -1,0 +1,7 @@
+- id: git-msg-check
+  name: git-msg-check
+  description: "Checks the format of a Git commit message"
+  entry: git-msg-check
+  language: python
+  stages: 
+    - commit-msg
