@@ -27,39 +27,59 @@ ACTION_VERBS = [
     "deprecate",
     "make",
     "change",
-    "adapt"
+    "adapt",
 ]
 
+
 def validate_msg(msg: List[str], args: argparse.Namespace) -> None:
-    assert len(msg) > 0, f"Commit message must "
+    assert len(msg) > 0, "Commit message must not be empty"
 
     for line_num, line in enumerate(msg):
-        assert len(line) <= args.max_line_length, f"Line {line_num} exceeds character limit ({len(line)} > {args.max_line_length})"
+        assert (
+            len(line) <= args.max_line_length
+        ), f"Line {line_num} exceeds character limit ({len(line)} > {args.max_line_length})"
 
         # check header
         if line_num == 0:
-            match = re.match("(\w+): (.*)", line)
-
+            match = re.match(r"(\w+): (.*)", line)
             assert match is not None, f"Header '{line.strip()}' has no component"
-            
+
             # check component
             component = match.group(1)
             max_component_length = args.max_line_length - args.max_summary_length
-            assert len(component) <= max_component_length, f"Summary exceeds character limit ({len(component)} > {max_component_length})"
-            assert component[0].isupper(), f"Component '{component}' must be capitalized"
+            assert (
+                len(component) <= max_component_length
+            ), f"Summary exceeds character limit ({len(component)} > {max_component_length})"
+            assert component[
+                0
+            ].isupper(), f"Component '{component}' must be capitalized"
 
             # check summary
             summary = match.group(2)
 
-            assert len(summary) <= args.max_summary_length, f"Summary exceeds character limit ({len(summary)} > {args.max_summary_length})"
+            assert (
+                len(summary) <= args.max_summary_length
+            ), f"Summary exceeds character limit ({len(summary)} > {args.max_summary_length})"
             assert summary[0].islower(), "Summary must start with a lower case"
-            assert re.match("\w", summary[-1]), "Summary must end with a regular character (no punctuation)"
+            assert re.match(
+                r"\w", summary[-1]
+            ), "Summary must end with a regular character (no punctuation)"
 
-            assert summary.split(" ")[0] in ACTION_VERBS, f"Summary must start with an action verb (i.e. {', '.join(ACTION_VERBS)})"
-            assert len(summary.split(" ")) > 2, "Summary is trivial, please provide a meaningful summary"
+            assert summary.split(" ")[0] in ACTION_VERBS, (
+                "Summary must start with an imperative, action verb "
+                f"(i.e. {', '.join(ACTION_VERBS)})"
+            )
+            assert (
+                len(summary.split(" ")) > 2
+            ), "Summary is trivial, please provide a meaningful summary"
         elif line_num == 1:
-            assert len(line) == 1 and line[0] == "\n", f"Commit details must be separated from header by an empty line"
-
+            assert (
+                len(line) == 1 and line[0] == "\n"
+            ), "Commit details must be separated from header by an empty line"
+        elif line_num == 2:
+            assert (
+                line[0] in ["*", "-"] or line[0].isupper()
+            ), "Details must start with an upper case or a Markdown list"
 
 
 def main(argv: Optional[List[str]] = None) -> None:
@@ -67,31 +87,28 @@ def main(argv: Optional[List[str]] = None) -> None:
 
     parser.add_argument("filename", type=str, help="the file to be validated")
     parser.add_argument(
-        "--max-summary-length", 
-        type=int, 
-        default=50, 
-        help="maximum summary length"
+        "--max-summary-length", type=int, default=50, help="maximum summary length"
     )
     parser.add_argument(
-        "--max-line-length", 
-        type=int, 
-        default=72, 
-        help="maximum line length"
+        "--max-line-length", type=int, default=72, help="maximum line length"
     )
     parser.add_argument(
-        "--guidelines-url", 
-        type=str, 
-        help="URL to commit message guidelines"
+        "--guidelines-url",
+        type=str,
+        default="https://github.com/gmermoud/git-msg-check#readme",
+        help="URL to commit message guidelines",
     )
 
     args = parser.parse_args()
-    
+
     with open(args.filename, "r") as f:
         commit_msg = f.readlines()
 
         try:
             validate_msg(commit_msg, args)
-            
-            logging.info("Commit message has been successfully validated.")
+
+            logging.info("SUCCESS: Commit message is valid")
         except AssertionError as err:
-            sys.exit(f"Error: {err}\n\nPlease see our commit guidelines at {args.guidelines_url}.")
+            sys.exit(
+                f"FAIL: {err}\n\nPlease see our commit guidelines at {args.guidelines_url}."
+            )

@@ -1,0 +1,61 @@
+repos:
+  - repo: git://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+      - id: check-added-large-files
+        args: ["--maxkb=4096"]
+      - id: check-merge-conflict
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        files: \.(js|rb|md|py|sh|txt|yaml|yml|kidm)$
+
+  - repo: https://github.com/psf/black
+    rev: 21.11b1
+    hooks:
+      - id: black
+        language_version: python3
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.910-1
+    hooks:
+      - id: mypy
+        language_version: python3
+        args:
+          [
+            --ignore-missing-imports,
+            --disallow-incomplete-defs,
+            --warn-unused-ignores,
+            --warn-redundant-casts,
+            --warn-unreachable,
+          ]
+
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.30.0
+    hooks:
+      - id: markdownlint
+        files: \.md$
+        language_version: "13.14.0"
+        args:
+          - --fix
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 4.0.1
+    hooks:
+      - id: flake8
+        language_version: python3
+        args: ["--max-line-length=100"]
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v2.5.0
+    hooks:
+      - id: prettier
+        files: \.md$
+        language_version: "13.14.0"
+
+  - repo: https://github.com/gmermoud/git-msg-check.git
+    rev: v0.1
+    hooks:
+      - id: git-msg-check
+        name: Validate commit message
+        stages: [commit-msg]
+        language_version: python3
