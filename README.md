@@ -16,9 +16,13 @@ effective code reviews. The checker enforces the following guidelines:
 - The component tells the reader which area of the code is impacted by
   the change.
 - The summary must not exceed 50 characters (configurable via `--max-summary-length`).
-- The summary must start with an imperative, action verb and should not
-  end with a dot.
+- The summary should not end with a dot.
 - Any line must not exceed 72 characters (configurable via `--max-line-length`).
+- A tag can be prepended to the summary line, for instance:
+
+  ```txt
+  [BREAKING] API: remove the field `isValid` to endpoint metrics
+  ```
 
 ## Usage
 

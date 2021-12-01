@@ -1,5 +1,4 @@
 import sys
-import re
 
 import argparse
 import logging
@@ -7,79 +6,12 @@ import logging
 from typing import List
 from typing import Optional
 
+from checker.validate import validate_msg
+
 DEFAULT_MAX_SUMMARY_LENGTH = 50
 DEFAULT_MAX_LINE_LENGTH = 72
 
-
-ACTION_VERBS = [
-    "fix",
-    "enhance",
-    "improve",
-    "increase",
-    "decrease",
-    "include",
-    "exclude",
-    "add",
-    "insert",
-    "remove",
-    "create",
-    "delete",
-    "deprecate",
-    "make",
-    "change",
-    "adapt",
-]
-
-
-def validate_msg(msg: List[str], args: argparse.Namespace) -> None:
-    assert len(msg) > 0, "Commit message must not be empty"
-
-    for line_num, line in enumerate(msg):
-        assert (
-            len(line) <= args.max_line_length
-        ), f"Line {line_num} exceeds character limit ({len(line)} > {args.max_line_length})"
-
-        # check header
-        if line_num == 0:
-            match = re.match(r"(\w+): (.*)", line)
-            assert match is not None, f"Header '{line.strip()}' has no component"
-
-            # check component
-            component = match.group(1)
-            max_component_length = args.max_line_length - args.max_summary_length
-            assert (
-                len(component) <= max_component_length
-            ), f"Summary exceeds character limit ({len(component)} > {max_component_length})"
-            assert component[
-                0
-            ].isupper(), f"Component '{component}' must be capitalized"
-
-            # check summary
-            summary = match.group(2)
-
-            assert (
-                len(summary) <= args.max_summary_length
-            ), f"Summary exceeds character limit ({len(summary)} > {args.max_summary_length})"
-            assert summary[0].islower(), "Summary must start with a lower case"
-            assert re.match(
-                r"\w", summary[-1]
-            ), "Summary must end with a regular character (no punctuation)"
-
-            assert summary.split(" ")[0] in ACTION_VERBS, (
-                "Summary must start with an imperative, action verb "
-                f"(i.e. {', '.join(ACTION_VERBS)})"
-            )
-            assert (
-                len(summary.split(" ")) > 2
-            ), "Summary is trivial, please provide a meaningful summary"
-        elif line_num == 1:
-            assert (
-                len(line) == 1 and line[0] == "\n"
-            ), "Commit details must be separated from header by an empty line"
-        elif line_num == 2:
-            assert (
-                line[0] in ["*", "-"] or line[0].isupper()
-            ), "Details must start with an upper case or a Markdown list"
+ALLOWED_TAGS = ["BREAKING CHANGE"]
 
 
 def main(argv: Optional[List[str]] = None) -> None:
@@ -98,6 +30,7 @@ def main(argv: Optional[List[str]] = None) -> None:
         default="https://github.com/gmermoud/git-msg-check#readme",
         help="URL to commit message guidelines",
     )
+    parser.add_argument("--verbose", action="store_true")
 
     args = parser.parse_args()
 
