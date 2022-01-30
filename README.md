@@ -44,3 +44,8 @@ Then, you may install the hook using:
 ```shell
 pre-commit install -t commit-msg
 ```
+
+## Contribute, bug reports or feature requests
+
+I will gladly review and accept your changes if you submit a PR. Feel free to open an issue 
+for any bug or feature request.
