@@ -76,5 +76,3 @@ def validate_msg(msg: List[str], args: Namespace) -> None:
             )
 
         line_num += 1
-
-
