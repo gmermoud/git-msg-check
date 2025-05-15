@@ -5,17 +5,17 @@ from collections import namedtuple
 from checker.validate import validate_msg
 
 Namespace = namedtuple(
-    "Namespace", ["max_line_length", "max_summary_length", "verbose"]
+    "Namespace", ["max_line_length", "max_summary_length", "verbose", "allowed-prefixes"]
 )
 
 
 @pytest.fixture
 def args() -> Namespace:
-    return Namespace(72, 50, True)
+    return Namespace(72, 50, True, ["new", "fix", "refactor", "tests", "docs", "minor", "build", "misc"])
 
 
 def test_valid1(args: Any) -> None:
-    msg = """Component: fix a serious bug with this component
+    msg = """fix[component]: fix a serious bug with this component
 
 Here are some details, and then some more stuff.
 # Some stuff
@@ -27,7 +27,7 @@ Here are some details, and then some more stuff.
 
 
 def test_valid2(args: Any) -> None:
-    msg = """Component: fix a serious bug with this component
+    msg = """fix: serious bug with this component
     """.split(
         "\n"
     )
@@ -36,7 +36,7 @@ def test_valid2(args: Any) -> None:
 
 
 def test_valid3(args: Any) -> None:
-    msg = """Component: fix a serious bug with this component
+    msg = """fix: a serious bug with this component
 
 - A list of details
 - Another bullet point
@@ -50,7 +50,7 @@ def test_valid3(args: Any) -> None:
 
 
 def test_valid4(args: Any) -> None:
-    msg = """[BREAKING CHANGE] Component: fix a serious bug with this component
+    msg = """new[optimizer]: add parameter for Adam scheme
 
 - A list of details
 - Another bullet point
@@ -63,15 +63,15 @@ def test_valid4(args: Any) -> None:
     validate_msg(msg, args)
 
 
-def test_invalid_lowercase_tag(args: Any) -> None:
-    msg = """[Test] Component: Fix a serious bug""".split("\n")
+def test_invalid_prefix(args: Any) -> None:
+    msg = """New[optimizer]: add parameter for Adam scheme""".split("\n")
 
-    with pytest.raises(AssertionError, match="Tag must in upper case"):
+    with pytest.raises(AssertionError, match="Prefix 'New' is not in the list of allowed prefixes"):
         validate_msg(msg, args)
 
 
 def test_invalid_capitalize_summary(args: Any) -> None:
-    msg = """Component: Fix a serious bug with this component
+    msg = """new[optimizer]: Add parameter for Adam scheme
 
 # Some stuff
 # as comments""".split(
@@ -83,7 +83,7 @@ def test_invalid_capitalize_summary(args: Any) -> None:
 
 
 def test_invalid_nospace_summary(args: Any) -> None:
-    msg = """Component: fix a serious bug with this component
+    msg = """new[optimizer]: add parameter for Adam scheme
 Here are some details.
 # Some stuff
 # as comments""".split(
@@ -97,7 +97,7 @@ Here are some details.
 
 
 def test_invalid_long_summary(args: Any) -> None:
-    msg = """Component: fix a serious bug with this component but is too long
+    msg = """new[optimizer]: fix a serious bug with this component but is too long
     """.split(
         "\n"
     )
@@ -107,7 +107,7 @@ def test_invalid_long_summary(args: Any) -> None:
 
 
 def test_invalid_long_details(args: Any) -> None:
-    msg = """Component: fix a serious bug with this component
+    msg = """new[optimizer]: add parameter for Adam scheme
 
 This sentence is too long, although it is part of the details of the description.
     """.split(
@@ -119,7 +119,7 @@ This sentence is too long, although it is part of the details of the description
 
 
 def test_invalid_trivial_summary(args: Any) -> None:
-    msg = """Component: fix bug
+    msg = """new[optimizer]: tbd
     """.split(
         "\n"
     )
@@ -129,7 +129,7 @@ def test_invalid_trivial_summary(args: Any) -> None:
 
 
 def test_invalid_lowercase_details(args: Any) -> None:
-    msg = """Component: fix a serious bug with this component
+    msg = """new[optimizer]: add parameter for Adam scheme
 
 details without capital letter
     """.split(
