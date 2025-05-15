@@ -1,0 +1,14 @@
+[project]
+name = "git-msg-check"
+version = "0.1.0"
+description = "Git commit message checker"
+authors = [
+    { name = "Gregory Mermoud", email = "gregory.mermoud@proton.me" },
+]
+license = { file = "LICENSE" }
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pytest>=8.3.5",
+]
+
