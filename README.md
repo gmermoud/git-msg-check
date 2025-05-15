@@ -8,21 +8,24 @@ effective code reviews. The checker enforces the following guidelines:
 - The header of the commit message must have the following format:
 
   ```txt
-  Pipelines: include column "windowSize" in group by of aggregation
+  new[optimizer]: add new option to adjust learning rate
 
-  Bug #249 is fixed by this change.
+  More details about the commit here.
   ```
 
-- The component tells the reader which area of the code is impacted by
+- The prefix should be one of those:
+  - `new:` when a new feature is added.
+  - `fix:` when a bug is fixed.
+  - `refactor:` when reorganizing or restructuring existing code.
+  - `docs:` when making changes related to documentation or comments.
+  - `minor:` when modifying trivial aspects of the codebase (e.g., formatting).
+  - `build:` when modifying build components (build tool, ci pipeline, dependencies, project version, ...).
+  - `misc:` when modifying miscellaneous aspects of the code base.
+- The component (in brackets) tells the reader which area of the code is impacted by
   the change.
-- The summary must not exceed 50 characters (configurable via `--max-summary-length`).
-- The summary should not end with a dot.
+- The first line must not exceed 50 characters (configurable via `--max-summary-length`).
+- The summary should _not_ end with a dot.
 - Any line must not exceed 72 characters (configurable via `--max-line-length`).
-- A tag can be prepended to the summary line, for instance:
-
-  ```txt
-  [BREAKING] API: remove the field `isValid` to endpoint metrics
-  ```
 
 ## Usage
 
@@ -47,5 +50,5 @@ pre-commit install -t commit-msg
 
 ## Contribute, bug reports or feature requests
 
-I will gladly review and accept your changes if you submit a PR. Feel free to open an issue 
+I will gladly review and accept your changes if you submit a PR. Feel free to open an issue
 for any bug or feature request.
